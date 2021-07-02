@@ -1,35 +1,33 @@
 import './App.css';
 import { useState } from 'react';
+import { sum, subtract, multiply, divide } from './calculate';
 
-const mathOperation = (left, sign, right = 0) => {
-  const numLeft = parseFloat(left);
-  const numRight = parseFloat(right);
-  switch (sign) {
-    case '+':
-      return numLeft + numRight;
-    case '-':
-      return numLeft - numRight;
-    case '*':
-      return numLeft * numRight;
-    case '/':
-      return numLeft / numRight;
-    default:
-      return NaN;
-  }
+const mathOperation = {
+  '+': sum,
+  '-': subtract,
+  '*': multiply,
+  '/': divide,
 };
 
 const getResult = (operands, signs) => {
-  for (const sign of signs) {
+  for (let i = 0; i < signs.length; i++) {
+    const sign = signs[i];
     if (sign === '*' || sign === '/') {
-      const index = signs.indexOf(sign);
-      const left = operands[index];
-      const right = operands[index + 1];
-      const result = mathOperation(left, sign, right);
-      operands.splice(index, 2, [result]);
-      signs.splice(index, 1);
+      const left = operands[i];
+      const right = operands[i + 1];
+      const operation = mathOperation[sign];
+      const result = operation(left, right);
+      operands.splice(i, 2, result);
+      signs.splice(i, 1);
+      i--;
     }
   }
-  return operands.reduce((acc, e, i) => acc = mathOperation(acc, signs[i - 1], e));
+  return operands.reduce((acc, e, i) => {
+    const sign = signs[i - 1];
+    const operation = mathOperation[sign];
+    acc = operation(acc, e);
+    return acc;
+  });
 };
 
 const calculate = (str) => {
